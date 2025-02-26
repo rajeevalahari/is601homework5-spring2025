@@ -4,6 +4,7 @@ from app.plugins.add import AddCommand
 from app.plugins.sub import SubtractCommand
 from app.plugins.mul import MultiplyCommand
 from app.plugins.div import DivideCommand
+from app.plugins.menu import MenuCommand
 
 def test_plugin_add_command_valid(capfd, monkeypatch):
     """Test that the AddCommand correctly adds two numbers."""
@@ -85,3 +86,16 @@ def test_plugin_divide_command_invalid(capfd, monkeypatch):
     command.execute()
     out, _ = capfd.readouterr()
     assert "Invalid input" in out
+
+def test_plugin_menu_command(capfd):
+    """Test that the MenuCommand prints the expected menu."""
+    command = MenuCommand()
+    command.execute()
+    out, _ = capfd.readouterr()
+    assert "Available commands:" in out, "Menu header missing"
+    assert "add" in out, "Add command not listed"
+    assert "sub" in out, "Subtract command not listed"
+    assert "mul" in out, "Multiply command not listed"
+    assert "div" in out, "Divide command not listed"
+    assert "exit" in out, "Exit command not listed"
+    assert "menu" in out, "Menu command not listed"
