@@ -23,7 +23,12 @@ class App:
     def start(self):
         # Register commands here
         self.load_plugins()
-        print("Type 'exit' to exit.")
+        print("Type one of the following commands:")
+        print("  add  -> for addition")
+        print("  sub  -> for subtraction")
+        print("  mul  -> for multiplication")
+        print("  div  -> for division")
+        print("  exit -> to exit the program")
         while True:  #REPL Read, Evaluate, Print, Loop
             self.command_handler.execute_command(input(">>> ").strip())
 

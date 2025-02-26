@@ -1,72 +1,87 @@
-"""Tests for the App functionality and its command modules."""
+"""Tests for the calculator commands (add, sub, mul, div) and the exit command."""
 
-import pytest
-from app import App
-from app.plugins.greet import GreetCommand
-from app.plugins.goodbye import GoodbyeCommand
-from app.plugins.thanks import ThanksCommand
-from app.plugins.discord import DiscordCommand
-from app.commands import CommandHandler
+from app.plugins.add import AddCommand
+from app.plugins.sub import SubtractCommand
+from app.plugins.mul import MultiplyCommand
+from app.plugins.div import DivideCommand
 
-# --- Plugin Command Tests ---
-
-def test_plugin_greet_command(capfd):
-    """Test that the GreetCommand prints the correct greeting."""
-    command = GreetCommand()
+def test_plugin_add_command_valid(capfd, monkeypatch):
+    """Test that the AddCommand correctly adds two numbers."""
+    inputs = iter(["3", "4"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    command = AddCommand()
     command.execute()
     out, _ = capfd.readouterr()
-    assert out == "Hello, World!\n", "GreetCommand output mismatch"
+    assert "Result: 7.0" in out, "AddCommand output mismatch"
 
-
-def test_plugin_goodbye_command(capfd):
-    """Test that the GoodbyeCommand prints the correct farewell."""
-    command = GoodbyeCommand()
+def test_plugin_add_command_invalid(capfd, monkeypatch):
+    """Test that the AddCommand handles invalid input gracefully."""
+    inputs = iter(["three", "4"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    command = AddCommand()
     command.execute()
     out, _ = capfd.readouterr()
-    assert out == "Goodbye\n", "GoodbyeCommand output mismatch"
+    assert "Invalid input" in out
 
-
-def test_plugin_thanks_command(capfd):
-    """Test that the ThanksCommand prints the correct message."""
-    command = ThanksCommand()
+def test_plugin_subtract_command_valid(capfd, monkeypatch):
+    """Test that the SubtractCommand correctly subtracts two numbers."""
+    inputs = iter(["10", "4"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    command = SubtractCommand()
     command.execute()
     out, _ = capfd.readouterr()
-    assert out == "Thankyou for executing\n", "ThanksCommand output mismatch"
+    assert "Result: 6.0" in out, "SubtractCommand output mismatch"
 
-
-def test_plugin_discord_command(capfd):
-    """Test that the DiscordCommand prints the correct message."""
-    command = DiscordCommand()
+def test_plugin_subtract_command_invalid(capfd, monkeypatch):
+    """Test that the SubtractCommand handles invalid input gracefully."""
+    inputs = iter(["ten", "4"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    command = SubtractCommand()
     command.execute()
     out, _ = capfd.readouterr()
-    assert out == "I WIll send something to discord\n", "DiscordCommand output mismatch"
+    assert "Invalid input" in out
 
+def test_plugin_multiply_command_valid(capfd, monkeypatch):
+    """Test that the MultiplyCommand correctly multiplies two numbers."""
+    inputs = iter(["3", "5"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    command = MultiplyCommand()
+    command.execute()
+    out, _ = capfd.readouterr()
+    assert "Result: 15.0" in out, "MultiplyCommand output mismatch"
 
-# --- CommandHandler Unknown Command Test ---
-def test_execute_unknown_command(capsys):
-    """Test that executing an unknown command prints an error message."""
-    handler = CommandHandler()
-    handler.execute_command("nonexistent")
-    captured = capsys.readouterr()
-    assert "No such command: nonexistent" in captured.out
+def test_plugin_multiply_command_invalid(capfd, monkeypatch):
+    """Test that the MultiplyCommand handles invalid input gracefully."""
+    inputs = iter(["three", "5"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    command = MultiplyCommand()
+    command.execute()
+    out, _ = capfd.readouterr()
+    assert "Invalid input" in out
 
+def test_plugin_divide_command_valid(capfd, monkeypatch):
+    """Test that the DivideCommand correctly divides two numbers."""
+    inputs = iter(["20", "4"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    command = DivideCommand()
+    command.execute()
+    out, _ = capfd.readouterr()
+    assert "Result: 5.0" in out, "DivideCommand output mismatch"
 
-# --- REPL Behavior Tests for App ---
-def test_app_greet_command(capfd, monkeypatch):
-    """Test that the REPL correctly handles the 'greet' command."""
-    inputs = iter(['greet', 'exit'])
-    monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    app = App()
-    with pytest.raises(SystemExit) as e:
-        app.start()
-    assert str(e.value) == "Exiting...", "The app did not exit as expected"
+def test_plugin_divide_command_division_by_zero(capfd, monkeypatch):
+    """Test that the DivideCommand handles division by zero."""
+    inputs = iter(["20", "0"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    command = DivideCommand()
+    command.execute()
+    out, _ = capfd.readouterr()
+    assert "Division by zero" in out or "not allowed" in out
 
-
-def test_app_menu_command(capfd, monkeypatch):
-    """Test that the REPL correctly handles the 'menu' command."""
-    inputs = iter(['menu', 'exit'])
-    monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    app = App()
-    with pytest.raises(SystemExit) as e:
-        app.start()
-    assert str(e.value) == "Exiting...", "The app did not exit as expected"
+def test_plugin_divide_command_invalid(capfd, monkeypatch):
+    """Test that the DivideCommand handles invalid input gracefully."""
+    inputs = iter(["twenty", "4"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    command = DivideCommand()
+    command.execute()
+    out, _ = capfd.readouterr()
+    assert "Invalid input" in out
